@@ -16,6 +16,7 @@ services:
     build: ./generator
     depends_on:
       - postgres
+    restart: on-failure
 
   redash:
     image: redash/redash:latest
