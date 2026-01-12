@@ -11,12 +11,39 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d taxi_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  generator:
-    build: ./generator
+  redis:
+    image: redis:7-alpine
+    container_name: taxi_redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redash-init:
+    image: redash/redash:latest
     depends_on:
-      - postgres
-    restart: on-failure
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      REDASH_DATABASE_URL: postgresql://root:qwerty@postgres/taxi_db
+      REDASH_SECRET_KEY: "taxi_project_secret_key_2026"
+      REDASH_REDIS_URL: redis://redis:6379/0
+    command: >
+      bash -c "
+        echo 'Создание таблиц Redash...' &&
+        /app/manage.py database create_tables &&
+        echo 'Таблицы созданы успешно!'
+      "
+    restart: "no"
 
   redash:
     image: redash/redash:latest
@@ -24,17 +51,75 @@ services:
       - "5000:5000"
     environment:
       REDASH_DATABASE_URL: postgresql://root:qwerty@postgres/taxi_db
+      REDASH_REDIS_URL: redis://redis:6379/0
+      REDASH_SECRET_KEY: "taxi_project_secret_key_2026"
+      PYTHONUNBUFFERED: 0
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      redash-init:
+        condition: service_completed_successfully
+    command: server
+    restart: unless-stopped
+
+  redash-worker:
+    image: redash/redash:latest
+    environment:
+      REDASH_DATABASE_URL: postgresql://root:qwerty@postgres/taxi_db
+      REDASH_REDIS_URL: redis://redis:6379/0
+      REDASH_SECRET_KEY: "taxi_project_secret_key_2026"
+      PYTHONUNBUFFERED: 0
+      QUEUES: "periodic,emails,default,queries,scheduled_queries,schemas"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      redash-init:
+        condition: service_completed_successfully
+    command: worker
+    restart: unless-stopped
+
+  redash-scheduler:
+    image: redash/redash:latest
+    environment:
+      REDASH_DATABASE_URL: postgresql://root:qwerty@postgres/taxi_db
+      REDASH_REDIS_URL: redis://redis:6379/0
+      REDASH_SECRET_KEY: "taxi_project_secret_key_2026"
+      PYTHONUNBUFFERED: 0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      redash-init:
+        condition: service_completed_successfully
+    command: scheduler
+    restart: unless-stopped
+
+  generator:
+    build: ./generator
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
 
   jupyter:
     image: jupyter/datascience-notebook:latest
     ports:
       - "8888:8888"
+    environment:
+      JUPYTER_ENABLE_LAB: "yes"
+      GRANT_SUDO: "yes"
     volumes:
       - ./notebooks:/home/jovyan/work
+    command: start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   postgres_data:
