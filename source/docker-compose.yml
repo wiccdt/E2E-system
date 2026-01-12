@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+        POSTGRES_USER: root
+        POSTGRES_PASSWORD: qwerty
+        POSTGRES_DB: taxi_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  generator:
+    build: ./generator
+    depends_on:
+      - postgres
+
+  redash:
+    image: redash/redash:latest
+    ports:
+      - "5000:5000"
+    environment:
+      REDASH_DATABASE_URL: postgresql://root:qwerty@postgres/taxi_db
+    depends_on:
+      - postgres
+
+  jupyter:
+    image: jupyter/datascience-notebook:latest
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
