@@ -188,7 +188,7 @@ ORDER BY trips_count DESC;
 ## Скриншоты дашборда
 
 ### Общий вид дашборда
-![Общий вид дашборда](../screenshots/dashboard.png)
+![Общий вид дашборда](https://github.com/wiccdt/E2E-system/blob/main/source/screenshots/dashboard.png)
 
 ### Зависимость цены от расстояния
 ![Зависимость цены от расстояния](../screenshots/img_1.png)
