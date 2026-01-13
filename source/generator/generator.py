@@ -2,7 +2,7 @@ import random
 import psycopg2
 import traceback
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 time.sleep(10)
 
@@ -137,6 +137,19 @@ VEHICLE_TYPE = [
     "comfort",
     "business"
 ]
+
+PRICE_PER_KM = {
+    "economy": 25,
+    "comfort": 35,
+    "business": 50
+}
+
+BASE_PRICE = {
+    "economy": 100,
+    "comfort": 150,
+    "business": 250
+}
+
 try:
     connection = psycopg2.connect(
         host="postgres",
@@ -147,19 +160,39 @@ try:
     )
     print("Connected successfully", flush=True)
     cursor = connection.cursor()
+
     while True:
-        time.sleep(10)
+        time.sleep(1)
+
+        current_time = datetime.now() - timedelta(days=7)
+        cursor.execute("SELECT MAX(timestamp) FROM taxi_rides")
+        max_time_result = cursor.fetchone()
+        if max_time_result and max_time_result[0]:
+            base_time = max_time_result[0].replace(second=0, microsecond=0)
+            random_minutes = random.randint(1, 20)
+            current_time = base_time + timedelta(minutes=random_minutes)
+        else:
+            current_time = datetime.now() - timedelta(days=7)
+            current_time = current_time.replace(second=0, microsecond=0)
+
         from_address_choice = random.choice(ADDRESSES)
         to_address_choice = random.choice([address for address in ADDRESSES if address != from_address_choice])
+        vehicle_type = random.choices(
+            VEHICLE_TYPE,
+            weights=[60, 30, 10],
+            k=1
+        )[0]
+        distance = round(random.uniform(1.0, 50.0), 2)
+        price = round((BASE_PRICE[vehicle_type] + (distance * PRICE_PER_KM[vehicle_type])) * random.uniform(0.9, 1.1), 2)
 
         new_ride = {
-            "timestamp": datetime.now(),
+            "timestamp": current_time,
             "from_address": from_address_choice,
             "to_address": to_address_choice,
-            "distance_km": round(random.uniform(1.0, 50.0), 2),
-            "price": round(random.uniform(100.0, 3000.0), 2),
+            "distance_km": distance,
+            "price": price,
             "rating": round(random.uniform(1.0, 5.0), 1),
-            "vehicle_type": random.choice(VEHICLE_TYPE),
+            "vehicle_type": vehicle_type,
             "duration_min": random.randint(5, 120),
             "payment_method": random.choice(PAYMENT_METHODS),
         }
