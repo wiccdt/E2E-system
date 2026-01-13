@@ -188,16 +188,16 @@ ORDER BY trips_count DESC;
 ## Скриншоты дашборда
 
 ### Общий вид дашборда
-![Общий вид дашборда](screenshots/dashboard.png)
+![Общий вид дашборда]([screenshots/dashboard.png](https://github.com/wiccdt/E2E-system/blob/main/source/screenshots/dashboard.png))
 
 ### Зависимость цены от расстояния
-![Зависимость цены от расстояния](screenshots/img_1.png)
+![Зависимость цены от расстояния]([screenshots/img_1.png](https://github.com/wiccdt/E2E-system/blob/main/source/screenshots/img_1.png))
 
 ### Средняя стоимость по типам автомобилей
-![Средняя стоимость по типам автомобилей](screenshots/img_2.png)
+![Средняя стоимость по типам автомобилей]([screenshots/img_2.png](https://github.com/wiccdt/E2E-system/blob/main/source/screenshots/img_2.png))
 
 ### Распределение по способам оплаты
-![Распределение по способам оплаты](screenshots/img_3.png)
+![Распределение по способам оплаты]([screenshots/img_3.png](https://github.com/wiccdt/E2E-system/blob/main/source/screenshots/img_3.png))
 
 ### Распределение по типам автомобилей
-![Распределение по типам автомобилей](screenshots/img_4.png)
+![Распределение по типам автомобилей]([screenshots/img_4.png](https://github.com/wiccdt/E2E-system/blob/main/source/screenshots/img_4.png))
