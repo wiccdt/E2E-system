@@ -197,7 +197,7 @@ ORDER BY trips_count DESC;
 ![Средняя стоимость по типам автомобилей](https://github.com/wiccdt/E2E-system/blob/main/source/screenshots/img_2.png)
 
 ### Распределение по способам оплаты
-![Распределение по способам оплаты]([../screenshots/img_3.png](https://github.com/wiccdt/E2E-system/blob/main/source/screenshots/img_3.png))
+![Распределение по способам оплаты](https://github.com/wiccdt/E2E-system/blob/main/source/screenshots/img_3.png)
 
 ### Распределение по типам автомобилей
-![Распределение по типам автомобилей]([../screenshots/img_4.png](https://github.com/wiccdt/E2E-system/blob/main/source/screenshots/img_4.png))
+![Распределение по типам автомобилей](https://github.com/wiccdt/E2E-system/blob/main/source/screenshots/img_4.png)
